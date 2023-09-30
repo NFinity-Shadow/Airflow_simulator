@@ -4,6 +4,7 @@ from PyQt5.QtWidgets import QApplication, QMainWindow, QLabel, QPushButton, QVBo
 from PyQt5.QtCore import Qt
 import matplotlib.pyplot as plt
 from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+from mpl_toolkits.mplot3d import Axes3D
 
 class AirflowSimulator(QMainWindow):
     def __init__(self, grid_size=(10, 10), time_steps=100):
@@ -34,7 +35,7 @@ class AirflowSimulator(QMainWindow):
         layout.addWidget(simulate_button)
 
         # Création d'un graph 
-        self.figure, self.ax = plt.subplots(figsize=(6, 6))
+        self.figure = plt.figure(figsize=(8, 6))
         self.canvas = FigureCanvas(self.figure)
         layout.addWidget(self.canvas)
 
@@ -75,16 +76,25 @@ class AirflowSimulator(QMainWindow):
 
     def update_plot(self):
         # Mise à jour du graphique avec les données du moment
-        self.ax.clear()
-        self.ax.imshow(self.airflow_grid, cmap='viridis', origin='upper', extent=[0, self.grid_size[1], 0, self.grid_size[0]])
+        self.figure.clear()
+        ax = self.figure.add_subplot(111, projection='3d')
+        x = np.arange(0, self.grid_size[1])
+        y = np.arange(0, self.grid_size[0])
+        X, Y = np.meshgrid(x, y)
+        Z = self.airflow_grid
+        
+        ax.plot_surface(X, Y, Z, cmap='viridis')
+
+        ax.set_xlabel('Axe_X')
+        ax.set_ylabel('Axe_Y')
+        ax.set_zlabel('Airflow')
+        ax.set_title('Airflow Simulator')
         self.canvas.draw()
 
     def start_simulation(self):
         self.initialize_simulation()
         self.run_simulation()
         # Pour simplifier nous affichons la grille finale de l'écoulement d'air
-        print("Grille Final de l'écoulement d'air : ")
-        print(self.airflow_grid)
 
 def main():
     app = QApplication(sys.argv)
