@@ -31,11 +31,12 @@ class AirflowSimulator(QMainWindow):
 
         # Création d'un bouton
         simulate_button = QPushButton("Simuler", self)
+        simulate_button.resize(150, 50)
         simulate_button.clicked.connect(self.start_simulation)
         layout.addWidget(simulate_button)
 
         # Création d'un graph 
-        self.figure = plt.figure(figsize=(8, 6))
+        self.figure = plt.figure(figsize=(16, 12))
         self.canvas = FigureCanvas(self.figure)
         layout.addWidget(self.canvas)
 
@@ -83,7 +84,16 @@ class AirflowSimulator(QMainWindow):
         X, Y = np.meshgrid(x, y)
         Z = self.airflow_grid
         
+        # Création du graphique avec les donnéesen 3d
         ax.plot_surface(X, Y, Z, cmap='viridis')
+
+        # Ajout des lignes de champs de l'écoulement d'air
+        step_size = 2 # Ajuster en fonction des performances
+        ax.quiver(X[::step_size, ::step_size], Y[::step_size, ::step_size], Z[::step_size, ::step_size],
+                  self.airflow_grid[::step_size, ::step_size],
+                  self.airflow_grid[::step_size, ::step_size],
+                  self.airflow_grid[::step_size, ::step_size],
+                  length=0.1, normalize=True, color='red')
 
         ax.set_xlabel('Axe_X')
         ax.set_ylabel('Axe_Y')
